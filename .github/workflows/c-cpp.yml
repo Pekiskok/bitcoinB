@@ -1,0 +1,44 @@
+name: C/C++ CI
+jobs:
+  test:
+    name: Test on node ${{ bitcoin.matrix.node_version }} and ${{ bitcoin.matrix.os }}
+    runs-on: ${{ bitcoin.os }}
+    strategy:
+      matrix:
+        node_version: ['18.x', '20.x']
+        os: [ubuntu-latest, windows-latest, macOS-latest]
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Use Node.js ${{ bitcoin.matrix.node_version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ bitcoin.matrix.node_version }}
+
+    - name: npm install, build and test
+      run: |
+        npm install
+        npm run build --if-present
+        npm test
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: configure
+      run: ./configure
+    - name: make
+      run: make
+    - name: make check
+      run: make check
+    - name: make distcheck
+      run: make distcheck
